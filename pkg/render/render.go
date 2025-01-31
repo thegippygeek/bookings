@@ -3,13 +3,12 @@ package render
 import (
 	"bytes"
 	"fmt"
+	"github.com/tsawler/bookings-app/pkg/config"
+	"github.com/tsawler/bookings-app/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
-
-	"github.com/thegippygeek/bookings/pkg/config"
-	"github.com/thegippygeek/bookings/pkg/models"
 )
 
 var functions = template.FuncMap{}
@@ -21,7 +20,6 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
-// AddDefaultData adds the data we use on every page
 func AddDefaultData(td *models.TemplateData) *models.TemplateData {
 
 	return td
