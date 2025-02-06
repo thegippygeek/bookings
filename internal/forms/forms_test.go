@@ -43,7 +43,7 @@ func TestForm_Required(t *testing.T) {
 
 func TestForm_Has(t *testing.T) {
 	postedData := url.Values{}
-	form := New(postedData)
+	form := New(url.Values{})
 
 	has := form.Has("whatever")
 	if has {
