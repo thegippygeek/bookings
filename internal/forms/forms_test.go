@@ -67,7 +67,7 @@ func TestForm_MinLength(t *testing.T) {
 
 	form.MinLength("x", 10)
 	if form.Valid() {
-		t.Error("form shows min length for non-exixstent field")
+		t.Error("form shows min length for non-existent field")
 	}
 
 	isError := form.Errors.Get("x")
@@ -98,6 +98,7 @@ func TestForm_MinLength(t *testing.T) {
 	if isError != "" {
 		t.Error("should not have error but got one")
 	}
+
 }
 
 func TestForm_IsEmail(t *testing.T) {
@@ -114,7 +115,7 @@ func TestForm_IsEmail(t *testing.T) {
 	form = New(postedValues)
 
 	form.IsEmail("email")
-	if !form.Valid(){
+	if !form.Valid() {
 		t.Error("got an invalid email when we should not have")
 	}
 
@@ -123,8 +124,7 @@ func TestForm_IsEmail(t *testing.T) {
 	form = New(postedValues)
 
 	form.IsEmail("email")
-	if form.Valid(){
+	if form.Valid() {
 		t.Error("got valid for invalid email address")
 	}
-
-}	
+}
