@@ -3,6 +3,11 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/alexedwards/scs/v2"
 	"github.com/tsawler/bookings/internal/config"
 	"github.com/tsawler/bookings/internal/driver"
@@ -10,13 +15,9 @@ import (
 	"github.com/tsawler/bookings/internal/helpers"
 	"github.com/tsawler/bookings/internal/models"
 	"github.com/tsawler/bookings/internal/render"
-	"log"
-	"net/http"
-	"os"
-	"time"
 )
 
-const portNumber = ":8080"
+const portNumber = ":8081"
 
 var app config.AppConfig
 var session *scs.SessionManager
@@ -30,6 +31,11 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.SQL.Close()
+
+	defer close(app.MailChan)
+	
+	fmt.Println("Starting Email Listener....")
+	listenForMail()
 
 	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 
@@ -48,6 +54,9 @@ func run() (*driver.DB, error) {
 	gob.Register(models.User{})
 	gob.Register(models.Room{})
 	gob.Register(models.Restriction{})
+
+	mailChan := make(chan models.MailData)
+	app.MailChan = mailChan
 
 	// change this to true when in production
 	app.InProduction = false
@@ -68,7 +77,7 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=tcs password=")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=example")
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")
 	}

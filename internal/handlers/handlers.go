@@ -2,6 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/tsawler/bookings/internal/config"
 	"github.com/tsawler/bookings/internal/driver"
 	"github.com/tsawler/bookings/internal/forms"
@@ -9,10 +15,6 @@ import (
 	"github.com/tsawler/bookings/internal/render"
 	"github.com/tsawler/bookings/internal/repository"
 	"github.com/tsawler/bookings/internal/repository/dbrepo"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // Repo the repository used by the handlers
@@ -180,6 +182,45 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
+
+	// send notifications - first to guest
+
+	htmlMessage := fmt.Sprintf(`
+		<strong>Reservation Confirmation</strong><br>
+		Dear %s: <br>
+		This is to confirm your reservation from %s to %s.
+	`, reservation.FirstName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+
+	msg := models.MailData{
+		To: reservation.Email,
+		From: "me@here.com",
+		Subject: "Reservation Confirmation",
+		Content: htmlMessage,
+		Template: "basic.html",
+	}
+
+	m.App.MailChan <- msg
+
+
+	htmlMessage = fmt.Sprintf(`
+		<strong>Booking for %s</strong><br>
+		Dear Property Owner, <br>
+		Arrival: %s <br>
+		Departure: %s <br>
+		<hr>
+		Name: %s %s
+		Email: %s
+		Phone: %s
+	`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"), reservation.FirstName, reservation.LastName, reservation.Email, reservation.Phone)
+
+	msg = models.MailData{
+		To: "owner@property.com",
+		From: reservation.Email,
+		Subject: fmt.Sprintf("Booking for Room: %s ", reservation.Room.RoomName),
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
 
 	http.Redirect(w, r, "/reservation-summary", http.StatusSeeOther)
 
