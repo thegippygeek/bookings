@@ -112,7 +112,7 @@ func (m *testDBRepo) GetUserByID(id int) (models.User, error){
 }
 
 // UpdateUsers updates a user in the database
-func (m *testDBRepo)  UpdateUsers(u models.User) error{
+func (m *testDBRepo)  UpdateUser(u models.User) error{
 	
 	return nil
 }
@@ -120,8 +120,6 @@ func (m *testDBRepo)  UpdateUsers(u models.User) error{
 // Authenticate authenticates a user
 func (m *testDBRepo) Authenticate(email, testPassword string) (int, string, error) {
 	
-
-
 	return 1, "", nil
 
 }

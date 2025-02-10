@@ -488,14 +488,15 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 
-		m.App.Session.Put(r.Context(), "err", "Invalid login credentials")
+		m.App.Session.Put(r.Context(), "error", "Invalid login credentials")
 		http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		return
+
 	}
 
 	m.App.Session.Put(r.Context(), "user_id", id)
 	m.App.Session.Put(r.Context(), "flash", "Logged in successfully")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-
 
 }
 
@@ -504,4 +505,21 @@ func (m *Repository) Logout(w http.ResponseWriter, r *http.Request) {
 	_ = m.App.Session.RenewToken(r.Context())
 
 	http.Redirect(w, r, "/user/login", http.StatusTemporaryRedirect)
+}
+
+func (m *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-dashboard.page.tmpl", &models.TemplateData{})
+}
+
+
+func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-new-reservations.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-all-reservations.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
+	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{})
 }

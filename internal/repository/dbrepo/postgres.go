@@ -192,7 +192,7 @@ func (m *postgresDBRepo) GetUserByID(id int) (models.User, error) {
 }
 
 // UpdateUsers updates a user in the database
-func (m *postgresDBRepo) UpdateUsers(u models.User) error {
+func (m *postgresDBRepo) UpdateUser(u models.User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
