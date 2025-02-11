@@ -10,6 +10,7 @@
         <!-- plugins:css -->
         <link rel="stylesheet" href="/static/admin/vendors/ti-icons/css/themify-icons.css">
         <link rel="stylesheet" href="/static/admin/vendors/base/vendor.bundle.base.css">
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
         <!-- endinject -->
         <!-- plugin css for this page -->
         <!-- End plugin css for this page -->
@@ -17,8 +18,20 @@
         <link rel="stylesheet" href="/static/admin/css/style.css">
         <!-- endinject -->
         <link rel="shortcut icon" href="/static/admin/images/favicon.png"/>
-
+        <style> 
+            .content-wrapper {
+                background: white
+            }
+            label {
+                font-weight: bold;
+            }
+            .notie-container {
+                z-index: 50000;
+            }
+        </style>
         {{block "css" . }}
+            <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+
 
         {{end}}
     </head>
@@ -58,9 +71,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false"
+                        <a class="nav-link" data-toggle="collapse" href="/admin/reservations-new" aria-expanded="false"
                            aria-controls="ui-basic">
-                            <i class="ti-palette menu-icon"></i>
+                            <i class="ti-menu menu-icon"></i>
                             <span class="menu-title">Reservations</span>
                             <i class="menu-arrow"></i>
                         </a>
@@ -75,7 +88,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/reservations-calendar">
-                            <i class="ti-layout-list-post menu-icon"></i>
+                            <i class="ti-calendar menu-icon"></i>
                             <span class="menu-title">Reservations Calendar</span>
                         </a>
                     </li>
@@ -132,8 +145,42 @@
     <script src="/static/admin/js/todolist.js"></script>
     <!-- endinject -->
     <!-- Custom js for this page-->
+    <script src="https://unpkg.com/notie"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="/static/js/app.js"></script>
     <script src="/static/admin/js/dashboard.js"></script>
     <!-- End custom js for this page-->
+        <script>
+        let attention = Prompt();
+
+                function notify(msg, msgType) {
+            notie.alert({
+                type: msgType,
+                text: msg,
+            })
+        }
+
+        function notifyModal(title, text, icon, confirmationButtonText) {
+            Swal.fire({
+                title: title,
+                html: text,
+                icon: icon,
+                confirmButtonText: confirmationButtonText
+            })
+        }
+
+        {{with .Error}}
+        notify("{{.}}", "error")
+        {{end}}
+
+        {{with .Flash}}
+        notify("{{.}}", "success")
+        {{end}}
+
+        {{with .Warning}}
+        notify("{{.}}", "warning")
+        {{end}}
+        </script>
 
     {{block "js" . }}
 
