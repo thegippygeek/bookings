@@ -103,23 +103,22 @@ func (m *testDBRepo) GetRoomByID(id int) (models.Room, error) {
 	return room, nil
 }
 
-
 // GetUserByID gets user by id
-func (m *testDBRepo) GetUserByID(id int) (models.User, error){
+func (m *testDBRepo) GetUserByID(id int) (models.User, error) {
 	var u models.User
 
 	return u, nil
 }
 
 // UpdateUsers updates a user in the database
-func (m *testDBRepo)  UpdateUser(u models.User) error{
-	
+func (m *testDBRepo) UpdateUser(u models.User) error {
+
 	return nil
 }
 
 // Authenticate authenticates a user
 func (m *testDBRepo) Authenticate(email, testPassword string) (int, string, error) {
-	
+
 	return 1, "", nil
 
 }
@@ -141,7 +140,7 @@ func (m *testDBRepo) AllNewReservations() ([]models.Reservation, error) {
 }
 
 // GetReservationByID returns one reservation by id
-func (m *testDBRepo) GetReservationByID(id int) (models.Reservation, error){
+func (m *testDBRepo) GetReservationByID(id int) (models.Reservation, error) {
 
 	var res models.Reservation
 
@@ -162,5 +161,19 @@ func (m *testDBRepo) DeleteReservation(id int) error {
 
 // UpdateProcessedForReservation updates processed for the id
 func (m *testDBRepo) UpdateProcessedForReservation(id, processed int) error {
-	return nil	
+	return nil
+}
+
+func (m *testDBRepo) AllRooms() ([]models.Room, error) {
+	var rooms []models.Room
+	return rooms, nil
+}
+
+// GetRestrictionsForRoomByDate returns room restrictions by date
+func (m *testDBRepo) GetRestrictionsForRoomByDate(roomID int, start, end time.Time) ([]models.RoomRestriction, error) {
+	
+	var restrictions []models.RoomRestriction
+
+	return restrictions, nil 
+
 }
