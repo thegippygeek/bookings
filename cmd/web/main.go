@@ -2,13 +2,16 @@ package main
 
 import (
 	"encoding/gob"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 	"github.com/tsawler/bookings/internal/config"
 	"github.com/tsawler/bookings/internal/driver"
 	"github.com/tsawler/bookings/internal/handlers"
@@ -55,14 +58,37 @@ func run() (*driver.DB, error) {
 	gob.Register(models.Room{})
 	gob.Register(models.Restriction{})
 	gob.Register(map[string]int{})
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	
+
+	// read flags
+	inProduction := flag.String("production", os.Getenv("PRODUCTION"), "Application is in production")
+	useCache := flag.String("cache", os.Getenv("CACHE"), "Use template cache")
+	dbHost := flag.String("dbhost", os.Getenv("DBHOST"), "Database host")
+	dbName := flag.String("dbname", os.Getenv("DBNAME"), "Database name")
+	dbUser := flag.String("dbuser", os.Getenv("DBUSER"), "Database user")
+	dbPass := flag.String("dbpass", os.Getenv("DBPASS"), "Database password")
+	dbPort := flag.String("dbport", os.Getenv("DBPORT"), "Database port")
+	dbSSL := flag.String("dbssl", os.Getenv("DBSSL"), "Database ssl settings (disable, prefer, require)")
+
+
+	flag.Parse()
+
+	if *dbName == "" || *dbUser == "" {
+		fmt.Println("Missing required flags")
+		os.Exit(1)
+	}
 
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan
 
 	// change this to true when in production
-	app.InProduction = false
-
+	app.InProduction, _ = strconv.ParseBool(*inProduction)
+  app.UseCache, _  = strconv.ParseBool(*useCache)
 	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	app.InfoLog = infoLog
 
@@ -79,7 +105,8 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=bookings user=postgres password=example")
+	connectionString := fmt.Sprintf("host=%s port=%s dbname=%s user=%s password=%s sslmode=%s", *dbHost, *dbPort, *dbName, *dbUser, *dbPass, *dbSSL)
+	db, err := driver.ConnectSQL(connectionString)
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")
 	}
@@ -92,7 +119,7 @@ func run() (*driver.DB, error) {
 	}
 
 	app.TemplateCache = tc
-	app.UseCache = false
+	
 
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)

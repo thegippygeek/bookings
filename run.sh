@@ -9,4 +9,4 @@ echo "building $file..."
 go build -o $file cmd/web/*.go
 
 echo "launching $file..."
-./$file
+./$file -dbname=bookings -dbuser=postgres -dbpass=example  -cache=false -production=false
