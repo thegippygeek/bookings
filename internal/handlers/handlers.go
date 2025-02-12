@@ -635,7 +635,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 				}
 			}
 		}
-			data[fmt.Sprintf("reservertion_map_%d", x.ID)] = reservationMap
+			data[fmt.Sprintf("reservation_map_%d", x.ID)] = reservationMap
 			data[fmt.Sprintf("block_map_%d", x.ID)] = blockMap
 			
 			// log.Println("=======================")
