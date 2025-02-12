@@ -12,9 +12,13 @@
         <strong>Arrival:</strong> {{humanDate $res.StartDate}}<br>
         <strong>Departure:</strong> {{humanDate $res.EndDate}}<br>
         <strong>Room:</strong> {{$res.Room.RoomName}}<br>
+       
         </p>
         <form action="/admin/reservations/{{$src}}/{{$res.ID}} " method="post" class="" novalidate>
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                    <input type="hidden" name="year" value="{{index .StringMap "year"}}">
+                    <input type="hidden" name="month" value="{{index .StringMap "month"}}">
+                    
 
                     <div class="form-group mt-3">
                         <label for="first_name">First Name:</label>

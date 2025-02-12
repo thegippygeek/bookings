@@ -683,6 +683,12 @@ func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request
 	stringMap := make(map[string]string)
 	stringMap["src"] = src
 
+	year := r.URL.Query().Get("y")
+	month := r.URL.Query().Get("m")
+
+	stringMap["month"] = month
+	stringMap["year"] = year
+
 	// get reservation from db
 	res, err := m.DB.GetReservationByID(id)
 	if err != nil {
@@ -709,6 +715,7 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 	}
 
 	exploded := strings.Split(r.RequestURI, "/")
+
 	id, err := strconv.Atoi(exploded[4])
 	if err != nil {
 		helpers.ServerError(w, err)
@@ -741,8 +748,18 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	month := r.Form.Get("month")
+	year := r.Form.Get("year")
+
+
 	m.App.Session.Put(r.Context(), "flash", "Changes Saved")
-	http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+
+	if year == "" {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-%s", src), http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("/admin/reservations-calendar?y=%s&m=%s", year, month), http.StatusSeeOther)
+	}
+
 
 	render.Template(w, r, "admin-reservations-show.page.tmpl", &models.TemplateData{
 		StringMap: stringMap,
