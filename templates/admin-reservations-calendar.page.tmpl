@@ -27,6 +27,12 @@
 
     <div class="clearfix"></div>
 
+		<form method="post" action="/admin/reservations-calendar">
+			<input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+			<input type="hidden" name="m" value="{{index .StringMap "this_month"}}">
+			<input type="hidden" name="y" value="{{index .StringMap "this_month_year"}}">
+		
+
     {{range $rooms}}
 			{{$roomID := .ID}}
 			{{$blocks := index $.Data (printf "block_map_%d" .ID)}}
@@ -45,8 +51,8 @@
 							{{range $index := iterate $dim}}							
 								<td class="text-center">
 									{{if gt (index $reservations (printf "%s-%s-%d" $curYear $curMonth (add $index 1))) 0 }}
-										<a href="/admin/reservations/cal/{{index $reservations (printf "%s-%s-%d" $curYear $curMonth (add $index 1))}}">
-										<span class="text-danger">R</span>
+										<a href="/admin/reservations/cal/{{index $reservations (printf "%s-%s-%d" $curYear $curMonth (add $index 1))}}/show">
+										<span class="text-danger"><i class="ti-user"></i></span>
 										</a>
 									{{else}}
 									<input 
@@ -56,6 +62,7 @@
 												value="{{index $blocks (printf "%s-%s-%d" $curYear $curMonth (add $index 1))}}"
 										{{else}}
 												name="add_block_{{$roomID}}_{{printf "%s-%s-%d" $curYear $curMonth (add $index 1)}}"
+												value="1"
 										{{end}}
 										type="checkbox">
 									{{end}}
@@ -65,4 +72,9 @@
 						</table>
         </div>                
     {{end}}
+
+		<hr>
+		<input type="submit" class="btn btn-primary" value="Save Changes">
+
+		</form>
 {{end}}
