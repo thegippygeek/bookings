@@ -1,4 +1,12 @@
 #!/bin/bash
+file="bookings"
+if [ -f "$file" ] ; then 
+  echo "removing $file..."
+  rm bookings
+fi
 
-go build -o bookings cmd/web/*.go
-./bookings
+echo "building $file..."
+go build -o $file cmd/web/*.go
+
+echo "launching $file..."
+./$file

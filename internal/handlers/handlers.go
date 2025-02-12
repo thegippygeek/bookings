@@ -548,12 +548,16 @@ func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request
 
 // AdminReservationsCalendar displays the reservation calendar
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request) {
-	//assume that thereis no month or year specified
+	//assume that there is no month or year specified
 	now := time.Now()
 
 	if r.URL.Query().Get("y") != "" {
 		year, _ := strconv.Atoi(r.URL.Query().Get("y"))
-		month, _ := strconv.Atoi(r.URL.Query().Get("m"))
+		month, err := strconv.Atoi(r.URL.Query().Get("m"))
+		if err != nil {
+			helpers.ServerError(w, err)
+			return
+		}
 		now = time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	}
 
@@ -576,6 +580,8 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 
 	stringMap["this_month"] = now.Format("01")
 	stringMap["this_month_year"] = now.Format("2006")
+
+	log.Println(stringMap)
 	
 	// get the first and last days of the month
 	currentYear, currentMonth, _ := now.Date()
@@ -585,6 +591,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 	
 	intMap := make(map[string]int)
 	intMap["days_in_month"] = lastOfMonth.Day()
+	
 
 	rooms, err := m.DB.AllRooms()
 	if err != nil {
@@ -599,7 +606,7 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		reservationMap := make(map[string]int)
 		blockMap := make(map[string]int)
 
-		for d := firstOfMonth; d.After(lastOfMonth) == false; d = d.AddDate(0,0,1) {
+		for d := firstOfMonth; !d.After(lastOfMonth); d = d.AddDate(0,0,1) {
 			reservationMap[d.Format("2006-01-2")] = 0
 			blockMap[d.Format("2006-01-2")] = 0
 		}
@@ -612,25 +619,33 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 		}
 
 		for _, y := range restrictions {
+			// log.Printf("Restriction Date: %s %d",y.StartDate.Format("2006-01-02"), y.ReservationID)
 			if y.ReservationID > 0 {
+				// log.Printf("reservation: %s %d", y.StartDate.Format("2006-01-02"), y.ID)
 				// it's a reservation
-				for d := y.StartDate; d.After(y.EndDate) == false; d = d.AddDate(0, 0, 1) {
-					reservationMap[d.Format("2006-01-2")] = y.ReservationID
+				for d := y.StartDate; !d.After(y.EndDate); d = d.AddDate(0, 0, 1) {
+					// log.Printf("resmap %s %d", d.Format("2006-01-02"), y.ReservationID)
+					reservationMap[d.Format("2006-01-02")] = y.ReservationID
 				} 
-				} else {
-					// it/s a block
-					blockMap[y.StartDate.Format("2006-01-2")] = y.ID
+			} else {
+				// it's a block
+				for d := y.StartDate; !d.After(y.EndDate); d = d.AddDate(0, 0, 1) {
+					// log.Printf("Block: %s %d", d.Format("2006-01-02"), y.ID)
+					blockMap[d.Format("2006-01-02")] = y.ID
 				}
 			}
-		data[fmt.Sprintf("reservertion_map_%d", x.ID)] = reservationMap
-		data[fmt.Sprintf("block_map_%d", x.ID)] = blockMap
+		}
+			data[fmt.Sprintf("reservertion_map_%d", x.ID)] = reservationMap
+			data[fmt.Sprintf("block_map_%d", x.ID)] = blockMap
+			
+			// log.Println("=======================")
+			// log.Println("reserveration map ",reservationMap)
+			// log.Println("-----------------------")
+			// log.Println("block map:\n", blockMap)
+			// log.Println("-----------------------")
 
 
 		m.App.Session.Put(r.Context(), fmt.Sprintf("block_map_%d", x.ID), blockMap)
-
-
-
-
 	}
 
 

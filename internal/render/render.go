@@ -116,7 +116,7 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 		if err != nil {
-			log.Printf("range of pages stopped at %s",page)
+			log.Printf("There is an error in %s",page)
 			return myCache, err
 		}
 
